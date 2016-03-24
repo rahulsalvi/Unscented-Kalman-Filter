@@ -75,23 +75,23 @@ class UnscentedKalmanFilterTester : public ::testing::Test {
 };
 
 TEST_F(UnscentedKalmanFilterTester, InitializesCorrectly) {
-	EXPECT_EQ(STATE_DIM, _logger.sigmaPoints().rows());
-	EXPECT_EQ(2*STATE_DIM+1, _logger.sigmaPoints().cols());
+	EXPECT_EQ(_logger.sigmaPoints().rows(), STATE_DIM);
+	EXPECT_EQ(_logger.sigmaPoints().cols(), 2*STATE_DIM+1);
 
-	ASSERT_DOUBLE_EQ(1, _logger.lambda());
-	EXPECT_DOUBLE_EQ(-1, _logger.weights()[0]);
-	EXPECT_DOUBLE_EQ(1, _logger.weights()[1]);
-	EXPECT_DOUBLE_EQ(0.5, _logger.weights()[2]);
+	ASSERT_DOUBLE_EQ(_logger.lambda(),     1);
+	EXPECT_DOUBLE_EQ(_logger.weights()[0], -1);
+	EXPECT_DOUBLE_EQ(_logger.weights()[1], 1);
+	EXPECT_DOUBLE_EQ(_logger.weights()[2], 0.5);
 
 	_filter.setKappa(3);
 	_filter.setAlpha(0.1);
 	_filter.setBeta(-1);
 	_filter.initialize();
 
-	ASSERT_DOUBLE_EQ(0.01*(STATE_DIM+3), _logger.lambda());
-	ASSERT_DOUBLE_EQ((_logger.lambda()-STATE_DIM)/_logger.lambda(), _logger.weights()[0]);
-	EXPECT_DOUBLE_EQ(_logger.weights()[0] - 0.01, _logger.weights()[1]);
-	EXPECT_DOUBLE_EQ(1/(2*_logger.lambda()), _logger.weights()[2]);
+	ASSERT_DOUBLE_EQ(_logger.lambda(),     0.01*(STATE_DIM+3));
+	ASSERT_DOUBLE_EQ(_logger.weights()[0], (_logger.lambda()-STATE_DIM)/_logger.lambda());
+	EXPECT_DOUBLE_EQ(_logger.weights()[1], _logger.weights()[0] - 0.01);
+	EXPECT_DOUBLE_EQ(_logger.weights()[2], 1/(2*_logger.lambda()));
 }
 
 TEST_F(UnscentedKalmanFilterTester, CreatesSigmaPointsCorrectly) {
