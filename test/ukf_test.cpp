@@ -93,3 +93,7 @@ TEST_F(UnscentedKalmanFilterTester, InitializesCorrectly) {
 	EXPECT_DOUBLE_EQ(_logger.weights()[0] - 0.01, _logger.weights()[1]);
 	EXPECT_DOUBLE_EQ(1/(2*_logger.lambda()), _logger.weights()[2]);
 }
+
+TEST_F(UnscentedKalmanFilterTester, CreatesSigmaPointsCorrectly) {
+
+}
