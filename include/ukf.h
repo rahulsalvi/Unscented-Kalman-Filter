@@ -25,15 +25,16 @@ SOFTWARE.
 #ifndef UKF_H
 #define UKF_H
 
-#include <eigen3/Eigen/Dense>
+#include <eigen3/Eigen/Core>
+#include <eigen3/Eigen/Cholesky>
 #include <vector>
 #include <exception>
 
 using namespace Eigen;
 
-#define W0M  0
-#define W0C  1
-#define WIMC 2
+#define MEAN_WEIGHT_0  0
+#define COVARIANCE_WEIGHT_0  1
+#define BOTH_WEIGHT_I 2
 
 class UnscentedKalmanFilter {
 	public:
@@ -57,6 +58,7 @@ class UnscentedKalmanFilter {
 				      VectorXd (*measurementTransfer)(VectorXd, double),
 				      MatrixXd processNoise,
 				      MatrixXd measurementNoise,
+				      int      measurementSize,
 				      double   dt,
 				      double   kappa,
 				      double   alpha = 0.001,
@@ -70,24 +72,42 @@ class UnscentedKalmanFilter {
 				      _dt(dt),
 				      _kappa(kappa),
 				      _alpha(alpha),
-				      _beta(beta)
+				      _beta(beta),
+				      _rootFinder(_state.size())
 {
-	_numSigmaPoints = (2*_state.size())+1;
-	_lambda         = _alpha * _alpha * (_state.size() * _kappa);
-	_weights[W0M]   = (_lambda - _state.size()) / _lambda;
-	_weights[W0C]   = _weights[W0M] + 1 - (_alpha * _alpha) + _beta;
-	_weights[WIMC]  = 0.5 / _lambda;
+#ifdef UKF_DIMENSION_CHECKING
+	if (_state.size() != _covariance.rows() || _state.size() != _covariance.cols()) {
+		throw std::runtime_error("dimension mismatch");
+	}
+	if (_state.size() != _processNoise.rows() || _state.size() != _processNoise.cols()) {
+		throw std::runtime_error("dimension mismatch");
+	}
+	if (measurementSize != _measurementNoise.rows() || measurementSize != _measurementNoise.cols()) {
+		throw std::runtime_error("dimension mismatch");
+	}
+#endif
+
+	//Fix matrix sizes based on inputs
+	_sigmaPoints.resize(_state.size(), 2*_state.size()+1);
+	_sigmaPointsH.resize(measurementSize, 2*_state.size()+1);
+	_root.resize(_state.size(), _state.size());
+
+	//Calculate constants
+	_lambda                       = _alpha * _alpha * (_state.size() * _kappa);
+	_weights[MEAN_WEIGHT_0]       = (_lambda - _state.size()) / _lambda;
+	_weights[COVARIANCE_WEIGHT_0] = _weights[MEAN_WEIGHT_0] + 1 - (_alpha * _alpha) + _beta;
+	_weights[BOTH_WEIGHT_I]       = 0.5 / _lambda;
 }
 
-		VectorXd state()            { return _state;}
-		MatrixXd covariance()       { return _covariance;}
+		VectorXd state()            const { return _state;}
+		MatrixXd covariance()       const { return _covariance;}
 
-		MatrixXd processNoise()     { return _processNoise;}
-		MatrixXd measurementNoise() { return _measurementNoise;}
-		double   dt()               { return _dt;}
-		double   kappa()            { return _kappa;}
-		double   alpha()            { return _alpha;}
-		double   beta()             { return _beta;}
+		MatrixXd processNoise()     const { return _processNoise;}
+		MatrixXd measurementNoise() const { return _measurementNoise;}
+		double   dt()               const { return _dt;}
+		double   kappa()            const { return _kappa;}
+		double   alpha()            const { return _alpha;}
+		double   beta()             const { return _beta;}
 
 		void     setState(VectorXd in)                                        { _state = in;}
 		void     setStateTransfer(VectorXd (*in)(VectorXd, VectorXd, double)) { _stateTransfer = in;}
@@ -98,12 +118,13 @@ class UnscentedKalmanFilter {
 
 		void     step(VectorXd control, VectorXd measurement);
 	private:
-		int      _numSigmaPoints;
+		friend class UnscentedKalmanFilterLogger;
+		friend class UnscentedKalmanFilterTester;
 
 		VectorXd _state;
 		MatrixXd _covariance;
 
-		double   _weights[3];	//W0M, W0C, WIMC
+		double   _weights[3];	//mean 0, covariance 0, both
 
 		VectorXd (*_stateTransfer)(VectorXd, VectorXd, double);
 		VectorXd (*_measurementTransfer)(VectorXd, double);
@@ -119,15 +140,16 @@ class UnscentedKalmanFilter {
 		double   _lambda;
 
 		MatrixXd _sigmaPoints;
-		MatrixXd _sigmaPointsF;
 		MatrixXd _sigmaPointsH;
 
 		void     createSigmaPoints();
-		void     transformPredictedPoints();
-		void     transformUpdatedPoints();
-
 		void     predict(VectorXd control);
 		void     update(VectorXd measurement);
+
+		LLT<MatrixXd> _rootFinder;
+
+		//Intermediary variables for each step
+		MatrixXd _root;
 };
 
 #endif //UKF_H
