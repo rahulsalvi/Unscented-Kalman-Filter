@@ -14,7 +14,7 @@ file(GLOB SOURCES "${PROJECT_SOURCE_DIR}/src/*.cpp")
 find_package(GTest REQUIRED)
 include_directories("${GTEST_INCLUDE_DIR}")
 
-find_package(Eigen3 REQUIRED)
+set(EIGEN3_INCLUDE_DIR /opt/local/include/eigen3/Eigen/)
 include_directories("${EIGEN3_INCLUDE_DIR}")
 
 set(PROJECT_TEST_NAME ${PROJECT_NAME_STR}_test)
