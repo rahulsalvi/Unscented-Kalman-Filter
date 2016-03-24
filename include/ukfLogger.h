@@ -14,7 +14,8 @@ class UnscentedKalmanFilterLogger {
 
 		const UnscentedKalmanFilter& filter() const {return _filter;}
 
-		const double* weights()      const {return &(_filter._weights[0]);}
+		double        lambda()       const {return _filter._lambda;}
+		const double* weights()      const {return _filter._weights;}
 		MatrixXd      sigmaPoints()  const {return _filter._sigmaPoints;}
 		MatrixXd      sigmaPointsH() const {return _filter._sigmaPointsH;}
 		LLT<MatrixXd> rootFinder()   const {return _filter._rootFinder;}

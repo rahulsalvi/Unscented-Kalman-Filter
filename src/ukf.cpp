@@ -48,7 +48,7 @@ void UnscentedKalmanFilter::fixMatrixSizes() {
 }
 
 void UnscentedKalmanFilter::calculateConstants() {
-	_lambda                       = _alpha * _alpha * (_state.size() * _kappa);
+	_lambda                       = _alpha * _alpha * (_state.size() + _kappa);
 	_weights[MEAN_WEIGHT_0]       = (_lambda - _state.size()) / _lambda;
 	_weights[COVARIANCE_WEIGHT_0] = _weights[MEAN_WEIGHT_0] + 1 - (_alpha * _alpha) + _beta;
 	_weights[BOTH_WEIGHT_I]       = 0.5 / _lambda;
@@ -69,4 +69,12 @@ void UnscentedKalmanFilter::createSigmaPoints() {
 		_sigmaPoints.col(i) = _state + _root.col(i-1);
 		_sigmaPoints.col(_state.size()+i) = _state + _root.col(i-1);
 	}
+}
+
+void UnscentedKalmanFilter::predict(VectorXd control) {
+
+}
+
+void UnscentedKalmanFilter::update(VectorXd measurement) {
+
 }

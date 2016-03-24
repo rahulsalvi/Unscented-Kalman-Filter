@@ -87,7 +87,6 @@ class UnscentedKalmanFilter {
 		double   _kappa;
 		double   _alpha;
 		double   _beta;
-		double   _lambda;
 
 		//Private member functions
 		void     fixMatrixSizes();
@@ -100,6 +99,7 @@ class UnscentedKalmanFilter {
 		//Intermediary variables
 		friend class UnscentedKalmanFilterLogger; //in case we need access to these externally
 
+		double   _lambda;
 		double _weights[3];	//mean 0, covariance 0, both
 
 		MatrixXd _sigmaPoints;
