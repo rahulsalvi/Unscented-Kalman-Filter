@@ -30,6 +30,10 @@ SOFTWARE.
 #include <vector>
 #include <exception>
 
+#ifdef TESTING
+#include <gtest/gtest_prod.h>
+#endif
+
 using namespace Eigen;
 
 #define MEAN_WEIGHT_0  0
@@ -107,6 +111,10 @@ class UnscentedKalmanFilter {
 
 		LLT<MatrixXd> _rootFinder;
 		MatrixXd _root;
+
+#ifdef TESTING
+		FRIEND_TEST(UnscentedKalmanFilterTester, CreatesSigmaPointsCorrectly);
+#endif
 };
 
 #endif //UKF_H

@@ -21,7 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-
+#include <iostream>
 #include <gtest/gtest.h>
 #include <eigen3/Eigen/Core>
 
@@ -45,24 +45,12 @@ class UnscentedKalmanFilterTester : public ::testing::Test {
 		UnscentedKalmanFilterTester() : _logger(_filter) {}
 
 		virtual void SetUp() {
-			VectorXd zeroVector;
-			zeroVector.setZero(STATE_DIM);
-			
-			MatrixXd zeroMatrix;
-			zeroMatrix.setZero(STATE_DIM, STATE_DIM);
-			
-			VectorXd state;
-			state.setOnes(STATE_DIM);
-
-			MatrixXd covariance;
-			covariance = MatrixXd::Identity(STATE_DIM, STATE_DIM);
-		
-			_filter.setState(state);
-			_filter.setCovariance(covariance);
+			_filter.setState(VectorXd::Ones(STATE_DIM,1));
+			_filter.setCovariance(MatrixXd::Identity(STATE_DIM, STATE_DIM));
 			_filter.setStateTransfer(stateTransfer);
 			_filter.setMeasurementTransfer(measurementTransfer);
-			_filter.setProcessNoise(zeroMatrix);
-			_filter.setMeasurementNoise(zeroMatrix);
+			_filter.setProcessNoise(MatrixXd::Zero(STATE_DIM, STATE_DIM));
+			_filter.setMeasurementNoise(MatrixXd::Zero(STATE_DIM, STATE_DIM));
 			_filter.setDt(0.01);
 			_filter.setKappa(-1);
 			_filter.setAlpha(1);
@@ -95,5 +83,46 @@ TEST_F(UnscentedKalmanFilterTester, InitializesCorrectly) {
 }
 
 TEST_F(UnscentedKalmanFilterTester, CreatesSigmaPointsCorrectly) {
+	_filter.createSigmaPoints();
+	
+	Matrix<double, STATE_DIM, 1> vec;
 
+	vec << 1, 1;
+	EXPECT_TRUE(_logger.sigmaPoints().col(0).isApprox(vec, 0.01));
+
+	vec << 2, 1;
+	EXPECT_TRUE(_logger.sigmaPoints().col(1).isApprox(vec, 0.01));
+
+	vec << 1, 2;
+	EXPECT_TRUE(_logger.sigmaPoints().col(2).isApprox(vec, 0.01));
+
+	vec << 0, 1;
+	EXPECT_TRUE(_logger.sigmaPoints().col(3).isApprox(vec, 0.01));
+
+	vec << 1, 0;
+	EXPECT_TRUE(_logger.sigmaPoints().col(4).isApprox(vec, 0.01));
+
+	vec << 2.5, -2.5;
+	_filter.setState(vec);
+
+	Matrix<double, STATE_DIM, STATE_DIM> cov;
+	cov << 0.25, 2, 2, 80;
+	_filter.setCovariance(cov);
+
+	_filter.createSigmaPoints();
+	
+	vec << 2.5, -2.5;
+	EXPECT_TRUE(_logger.sigmaPoints().col(0).isApprox(vec, 0.01));
+	
+	vec << 3.0, 1.5;
+	EXPECT_TRUE(_logger.sigmaPoints().col(1).isApprox(vec, 0.01));
+	
+	vec << 2.5, 5.5;
+	EXPECT_TRUE(_logger.sigmaPoints().col(2).isApprox(vec, 0.01));
+	
+	vec << 2.0, -6.5;
+	EXPECT_TRUE(_logger.sigmaPoints().col(3).isApprox(vec, 0.01));
+	
+	vec << 2.5, -10.5;
+	EXPECT_TRUE(_logger.sigmaPoints().col(4).isApprox(vec, 0.01));
 }

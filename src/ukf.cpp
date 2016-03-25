@@ -91,7 +91,7 @@ void UnscentedKalmanFilter::createSigmaPoints() {
 	_sigmaPoints.col(0) = _state;
 	for (int i = 1; i < _state.size()+1; i++) {
 		_sigmaPoints.col(i) = _state + _root.col(i-1);
-		_sigmaPoints.col(_state.size()+i) = _state + _root.col(i-1);
+		_sigmaPoints.col(_state.size()+i) = _state - _root.col(i-1);
 	}
 }
 
