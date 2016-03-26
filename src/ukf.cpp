@@ -67,6 +67,9 @@ void UnscentedKalmanFilter::fixMatrixSizes() {
 	}
 #endif
 	_sigmaPoints.resize(_state.size(), 2*_state.size()+1);
+#ifndef LOW_MEMORY
+	_sigmaPointsF.resize(_state.size(), 2*_state.size()+1);
+#endif
 	_sigmaPointsH.resize(_measurementNoise.rows(), 2*_state.size()+1);
 	_root.resize(_state.size(), _state.size());
 }
@@ -96,9 +99,31 @@ void UnscentedKalmanFilter::createSigmaPoints() {
 }
 
 void UnscentedKalmanFilter::predict(VectorXd control) {
+#ifdef LOW_MEMORY
+	MatrixXd* container = &_sigmaPoints;
+#else
+	MatrixXd* container = &_sigmaPointsF;
+#endif
+	for(int i = 0; i < _sigmaPoints.cols(); i++) {
+		(*container).col(i) = _stateTransfer(_sigmaPoints.col(i), control, _dt);
+	}	
 
+	_state = _weights[MEAN_WEIGHT_0] * (*container).col(0);
+	for(int i = 1; i < _sigmaPoints.cols(); i++) {
+		_state += _weights[BOTH_WEIGHT_I] * (*container).col(i);
+	}
+
+	_covariance = _weights[COVARIANCE_WEIGHT_0] * ((*container).col(0) - _state) * ((*container).col(0) - _state).transpose();
+	for(int i = 1; i < _sigmaPoints.cols(); i++) {
+		_covariance += _weights[BOTH_WEIGHT_I] * ((*container).col(i) - _state) * ((*container).col(i) - _state).transpose();
+	}
 }
 
 void UnscentedKalmanFilter::update(VectorXd measurement) {
+#ifdef UKF_DIMENSION_CHECKING
+	if (measurement.size() != _measurementNoise.rows()) {
+		throw std::runtime_error("dimension mismatch: measurement measurementnoise");
+	}
+#endif
 
 }

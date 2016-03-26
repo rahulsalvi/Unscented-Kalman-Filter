@@ -107,12 +107,16 @@ class UnscentedKalmanFilter {
 		double _weights[3];	//mean 0, covariance 0, both
 
 		MatrixXd _sigmaPoints;
+#ifndef LOW_MEMORY
+		MatrixXd _sigmaPointsF;
+#endif
 		MatrixXd _sigmaPointsH;
 
 		LLT<MatrixXd> _rootFinder;
 		MatrixXd _root;
 
 #ifdef TESTING
+		FRIEND_TEST(UnscentedKalmanFilterTester, InitializesCorrectly);
 		FRIEND_TEST(UnscentedKalmanFilterTester, CreatesSigmaPointsCorrectly);
 #endif
 };

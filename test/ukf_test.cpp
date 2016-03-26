@@ -42,8 +42,6 @@ VectorXd measurementTransfer(VectorXd measurement, double dt) {
 
 class UnscentedKalmanFilterTester : public ::testing::Test {
 	public:
-		UnscentedKalmanFilterTester() : _logger(_filter) {}
-
 		virtual void SetUp() {
 			_filter.setState(VectorXd::Ones(STATE_DIM,1));
 			_filter.setCovariance(MatrixXd::Identity(STATE_DIM, STATE_DIM));
@@ -59,27 +57,26 @@ class UnscentedKalmanFilterTester : public ::testing::Test {
 		}
 
 		UnscentedKalmanFilter _filter;
-		UnscentedKalmanFilterLogger _logger;
 };
 
 TEST_F(UnscentedKalmanFilterTester, InitializesCorrectly) {
-	EXPECT_EQ(_logger.sigmaPoints().rows(), STATE_DIM);
-	EXPECT_EQ(_logger.sigmaPoints().cols(), 2*STATE_DIM+1);
+	EXPECT_EQ(_filter._sigmaPoints.rows(), STATE_DIM);
+	EXPECT_EQ(_filter._sigmaPoints.cols(), 2*STATE_DIM+1);
 
-	ASSERT_DOUBLE_EQ(_logger.lambda(),     1);
-	EXPECT_DOUBLE_EQ(_logger.weights()[0], -1);
-	EXPECT_DOUBLE_EQ(_logger.weights()[1], 1);
-	EXPECT_DOUBLE_EQ(_logger.weights()[2], 0.5);
+	ASSERT_DOUBLE_EQ(_filter._lambda,     1);
+	EXPECT_DOUBLE_EQ(_filter._weights[0], -1);
+	EXPECT_DOUBLE_EQ(_filter._weights[1], 1);
+	EXPECT_DOUBLE_EQ(_filter._weights[2], 0.5);
 
 	_filter.setKappa(3);
 	_filter.setAlpha(0.1);
 	_filter.setBeta(-1);
 	_filter.initialize();
 
-	ASSERT_DOUBLE_EQ(_logger.lambda(),     0.01*(STATE_DIM+3));
-	ASSERT_DOUBLE_EQ(_logger.weights()[0], (_logger.lambda()-STATE_DIM)/_logger.lambda());
-	EXPECT_DOUBLE_EQ(_logger.weights()[1], _logger.weights()[0] - 0.01);
-	EXPECT_DOUBLE_EQ(_logger.weights()[2], 1/(2*_logger.lambda()));
+	ASSERT_DOUBLE_EQ(_filter._lambda,     0.01*(STATE_DIM+3));
+	ASSERT_DOUBLE_EQ(_filter._weights[0], (_filter._lambda-STATE_DIM)/_filter._lambda);
+	EXPECT_DOUBLE_EQ(_filter._weights[1], _filter._weights[0] - 0.01);
+	EXPECT_DOUBLE_EQ(_filter._weights[2], 1/(2*_filter._lambda));
 }
 
 TEST_F(UnscentedKalmanFilterTester, CreatesSigmaPointsCorrectly) {
@@ -88,19 +85,19 @@ TEST_F(UnscentedKalmanFilterTester, CreatesSigmaPointsCorrectly) {
 	Matrix<double, STATE_DIM, 1> vec;
 
 	vec << 1, 1;
-	EXPECT_TRUE(_logger.sigmaPoints().col(0).isApprox(vec, 0.01));
+	EXPECT_TRUE(_filter._sigmaPoints.col(0).isApprox(vec, 0.01));
 
 	vec << 2, 1;
-	EXPECT_TRUE(_logger.sigmaPoints().col(1).isApprox(vec, 0.01));
+	EXPECT_TRUE(_filter._sigmaPoints.col(1).isApprox(vec, 0.01));
 
 	vec << 1, 2;
-	EXPECT_TRUE(_logger.sigmaPoints().col(2).isApprox(vec, 0.01));
+	EXPECT_TRUE(_filter._sigmaPoints.col(2).isApprox(vec, 0.01));
 
 	vec << 0, 1;
-	EXPECT_TRUE(_logger.sigmaPoints().col(3).isApprox(vec, 0.01));
+	EXPECT_TRUE(_filter._sigmaPoints.col(3).isApprox(vec, 0.01));
 
 	vec << 1, 0;
-	EXPECT_TRUE(_logger.sigmaPoints().col(4).isApprox(vec, 0.01));
+	EXPECT_TRUE(_filter._sigmaPoints.col(4).isApprox(vec, 0.01));
 
 	vec << 2.5, -2.5;
 	_filter.setState(vec);
@@ -112,17 +109,17 @@ TEST_F(UnscentedKalmanFilterTester, CreatesSigmaPointsCorrectly) {
 	_filter.createSigmaPoints();
 	
 	vec << 2.5, -2.5;
-	EXPECT_TRUE(_logger.sigmaPoints().col(0).isApprox(vec, 0.01));
+	EXPECT_TRUE(_filter._sigmaPoints.col(0).isApprox(vec, 0.01));
 	
 	vec << 3.0, 1.5;
-	EXPECT_TRUE(_logger.sigmaPoints().col(1).isApprox(vec, 0.01));
+	EXPECT_TRUE(_filter._sigmaPoints.col(1).isApprox(vec, 0.01));
 	
 	vec << 2.5, 5.5;
-	EXPECT_TRUE(_logger.sigmaPoints().col(2).isApprox(vec, 0.01));
+	EXPECT_TRUE(_filter._sigmaPoints.col(2).isApprox(vec, 0.01));
 	
 	vec << 2.0, -6.5;
-	EXPECT_TRUE(_logger.sigmaPoints().col(3).isApprox(vec, 0.01));
+	EXPECT_TRUE(_filter._sigmaPoints.col(3).isApprox(vec, 0.01));
 	
 	vec << 2.5, -10.5;
-	EXPECT_TRUE(_logger.sigmaPoints().col(4).isApprox(vec, 0.01));
+	EXPECT_TRUE(_filter._sigmaPoints.col(4).isApprox(vec, 0.01));
 }
