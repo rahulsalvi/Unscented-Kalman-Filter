@@ -62,6 +62,14 @@ class UnscentedKalmanFilterTester : public ::testing::Test {
 TEST_F(UnscentedKalmanFilterTester, InitializesCorrectly) {
 	EXPECT_EQ(_filter._sigmaPoints.rows(), STATE_DIM);
 	EXPECT_EQ(_filter._sigmaPoints.cols(), 2*STATE_DIM+1);
+#ifndef LOW_MEMORY
+	EXPECT_EQ(_filter._sigmaPointsF.rows(), STATE_DIM);
+	EXPECT_EQ(_filter._sigmaPointsF.cols(), 2*STATE_DIM+1);
+#endif
+	EXPECT_EQ(_filter._sigmaPointsH.rows(), STATE_DIM);
+	EXPECT_EQ(_filter._sigmaPointsH.cols(), 2*STATE_DIM+1);
+	EXPECT_EQ(_filter._root.rows(), STATE_DIM);
+	EXPECT_EQ(_filter._root.cols(), STATE_DIM);
 
 	ASSERT_DOUBLE_EQ(_filter._lambda,     1);
 	EXPECT_DOUBLE_EQ(_filter._weights[0], -1);
@@ -81,7 +89,7 @@ TEST_F(UnscentedKalmanFilterTester, InitializesCorrectly) {
 
 TEST_F(UnscentedKalmanFilterTester, CreatesSigmaPointsCorrectly) {
 	_filter.createSigmaPoints();
-	
+
 	Matrix<double, STATE_DIM, 1> vec;
 
 	vec << 1, 1;
@@ -107,19 +115,32 @@ TEST_F(UnscentedKalmanFilterTester, CreatesSigmaPointsCorrectly) {
 	_filter.setCovariance(cov);
 
 	_filter.createSigmaPoints();
-	
+
 	vec << 2.5, -2.5;
 	EXPECT_TRUE(_filter._sigmaPoints.col(0).isApprox(vec, 0.01));
-	
+
 	vec << 3.0, 1.5;
 	EXPECT_TRUE(_filter._sigmaPoints.col(1).isApprox(vec, 0.01));
-	
+
 	vec << 2.5, 5.5;
 	EXPECT_TRUE(_filter._sigmaPoints.col(2).isApprox(vec, 0.01));
-	
+
 	vec << 2.0, -6.5;
 	EXPECT_TRUE(_filter._sigmaPoints.col(3).isApprox(vec, 0.01));
-	
+
 	vec << 2.5, -10.5;
 	EXPECT_TRUE(_filter._sigmaPoints.col(4).isApprox(vec, 0.01));
+}
+
+TEST_F(UnscentedKalmanFilterTester, PredictsCorrectly) {
+	_filter.createSigmaPoints();
+	_filter.predict(MatrixXd::Zero(STATE_DIM, 1));
+
+	Matrix<double, STATE_DIM, 1> vec;
+	vec << 1, 1;
+	Matrix<double, STATE_DIM, STATE_DIM> cov;
+	cov << 1, 0, 0, 1;
+
+	EXPECT_TRUE(_filter.state().isApprox(vec, 0.01));
+	EXPECT_TRUE(_filter.covariance().isApprox(cov, 0.01));
 }

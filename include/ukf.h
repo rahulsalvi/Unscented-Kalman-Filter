@@ -118,6 +118,7 @@ class UnscentedKalmanFilter {
 #ifdef TESTING
 		FRIEND_TEST(UnscentedKalmanFilterTester, InitializesCorrectly);
 		FRIEND_TEST(UnscentedKalmanFilterTester, CreatesSigmaPointsCorrectly);
+		FRIEND_TEST(UnscentedKalmanFilterTester, PredictsCorrectly);
 #endif
 };
 

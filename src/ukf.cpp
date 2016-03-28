@@ -106,7 +106,7 @@ void UnscentedKalmanFilter::predict(VectorXd control) {
 #endif
 	for(int i = 0; i < _sigmaPoints.cols(); i++) {
 		(*container).col(i) = _stateTransfer(_sigmaPoints.col(i), control, _dt);
-	}	
+	}
 
 	_state = _weights[MEAN_WEIGHT_0] * (*container).col(0);
 	for(int i = 1; i < _sigmaPoints.cols(); i++) {
@@ -117,6 +117,7 @@ void UnscentedKalmanFilter::predict(VectorXd control) {
 	for(int i = 1; i < _sigmaPoints.cols(); i++) {
 		_covariance += _weights[BOTH_WEIGHT_I] * ((*container).col(i) - _state) * ((*container).col(i) - _state).transpose();
 	}
+	_covariance += _measurementNoise;
 }
 
 void UnscentedKalmanFilter::update(VectorXd measurement) {

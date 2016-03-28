@@ -41,6 +41,9 @@ class UnscentedKalmanFilterLogger {
 		const double&        lambda()       const {return _filter._lambda;}
 		const double*        weights()      const {return _filter._weights;}
 		const MatrixXd&      sigmaPoints()  const {return _filter._sigmaPoints;}
+#ifndef LOW_MEMORY
+		const MatrixXd&      sigmaPointsF() const {return _filter._sigmaPointsF;}
+#endif
 		const MatrixXd&      sigmaPointsH() const {return _filter._sigmaPointsH;}
 		const LLT<MatrixXd>& rootFinder()   const {return _filter._rootFinder;}
 		const MatrixXd&      root()         const {return _filter._root;}
