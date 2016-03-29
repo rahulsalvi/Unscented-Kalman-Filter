@@ -104,12 +104,10 @@ void UnscentedKalmanFilter::predict(VectorXd control) {
 #else
 	MatrixXd* container = &_sigmaPointsF;
 #endif
-	for(int i = 0; i < _sigmaPoints.cols(); i++) {
-		(*container).col(i) = _stateTransfer(_sigmaPoints.col(i), control, _dt);
-	}
-
+	(*container).col(0) = _stateTransfer(_sigmaPoints.col(0), control, _dt);
 	_state = _weights[MEAN_WEIGHT_0] * (*container).col(0);
 	for(int i = 1; i < _sigmaPoints.cols(); i++) {
+		(*container).col(i) = _stateTransfer(_sigmaPoints.col(i), control, _dt);
 		_state += _weights[BOTH_WEIGHT_I] * (*container).col(i);
 	}
 
