@@ -46,7 +46,7 @@ class UnscentedKalmanFilter {
 		UnscentedKalmanFilter(VectorXd initialState,
 				      MatrixXd initialCovariance,
 				      VectorXd (*stateTransfer)(VectorXd, VectorXd, double),
-				      VectorXd (*measurementTransfer)(VectorXd, double),
+				      VectorXd (*measurementTransfer)(VectorXd),
 				      MatrixXd processNoise,
 				      MatrixXd measurementNoise,
 				      double   dt,
@@ -63,16 +63,16 @@ class UnscentedKalmanFilter {
 		double   alpha()            const {return _alpha;}
 		double   beta()             const {return _beta;}
 
-		void setState			(VectorXd in)                                {_state               = in;}
-		void setCovariance		(MatrixXd in)				     {_covariance          = in;}
-		void setStateTransfer		(VectorXd (*in)(VectorXd, VectorXd, double)) {_stateTransfer       = in;}
-		void setMeasurementTransfer	(VectorXd (*in)(VectorXd, double))           {_measurementTransfer = in;}
-		void setProcessNoise		(MatrixXd in)                                {_processNoise        = in;}
-		void setMeasurementNoise	(MatrixXd in)                                {_measurementNoise    = in;}
-		void setDt			(double in)                                  {_dt                  = in;}
-		void setKappa			(double in)                                  {_kappa               = in;}
-		void setAlpha			(double in)                                  {_alpha               = in;}
-		void setBeta			(double in)                                  {_beta                = in;}
+		void setState			(VectorXd in)                                { _state               = in;}
+		void setCovariance		(MatrixXd in)                                { _covariance          = in;}
+		void setStateTransfer		(VectorXd (*in)(VectorXd, VectorXd, double)) { _stateTransfer       = in;}
+		void setMeasurementTransfer	(VectorXd (*in)(VectorXd))                   { _measurementTransfer = in;}
+		void setProcessNoise		(MatrixXd in)                                { _processNoise        = in;}
+		void setMeasurementNoise	(MatrixXd in)                                { _measurementNoise    = in;}
+		void setDt			(double in)                                  { _dt                  = in;}
+		void setKappa			(double in)                                  { _kappa               = in;}
+		void setAlpha			(double in)                                  { _alpha               = in;}
+		void setBeta			(double in)                                  { _beta                = in;}
 
 		void initialize();
 		void step(VectorXd control, VectorXd measurement);
@@ -81,7 +81,7 @@ class UnscentedKalmanFilter {
 		MatrixXd _covariance;
 
 		VectorXd (*_stateTransfer)(VectorXd, VectorXd, double);
-		VectorXd (*_measurementTransfer)(VectorXd, double);
+		VectorXd (*_measurementTransfer)(VectorXd);
 
 		MatrixXd _processNoise;
 		MatrixXd _measurementNoise;
@@ -111,6 +111,10 @@ class UnscentedKalmanFilter {
 		MatrixXd _sigmaPointsF;
 #endif
 		MatrixXd _sigmaPointsH;
+
+		VectorXd _measurementState;
+		MatrixXd _measurementCovariance;
+		MatrixXd _crossCovariance;
 
 		LLT<MatrixXd> _rootFinder;
 		MatrixXd _root;

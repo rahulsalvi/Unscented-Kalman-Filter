@@ -36,7 +36,7 @@ VectorXd stateTransfer(VectorXd state, VectorXd control, double dt) {
 	return state;
 }
 
-VectorXd measurementTransfer(VectorXd measurement, double dt) {
+VectorXd measurementTransfer(VectorXd measurement) {
 	return measurement;
 }
 
@@ -68,6 +68,12 @@ TEST_F(UnscentedKalmanFilterTester, InitializesCorrectly) {
 #endif
 	EXPECT_EQ(_filter._sigmaPointsH.rows(), STATE_DIM);
 	EXPECT_EQ(_filter._sigmaPointsH.cols(), 2*STATE_DIM+1);
+	EXPECT_EQ(_filter._measurementState.rows(), STATE_DIM);
+	EXPECT_EQ(_filter._measurementState.cols(), 1);
+	EXPECT_EQ(_filter._measurementCovariance.rows(), STATE_DIM);
+	EXPECT_EQ(_filter._measurementCovariance.cols(), STATE_DIM);
+	EXPECT_EQ(_filter._crossCovariance.rows(), STATE_DIM);
+	EXPECT_EQ(_filter._crossCovariance.cols(), STATE_DIM);
 	EXPECT_EQ(_filter._root.rows(), STATE_DIM);
 	EXPECT_EQ(_filter._root.cols(), STATE_DIM);
 
