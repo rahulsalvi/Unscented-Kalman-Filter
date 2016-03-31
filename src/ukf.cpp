@@ -74,6 +74,7 @@ void UnscentedKalmanFilter::fixMatrixSizes() {
 	_measurementState.resize(_measurementNoise.rows());
 	_measurementCovariance.resize(_measurementNoise.rows(), _measurementNoise.rows());
 	_crossCovariance.resize(_state.size(), _measurementNoise.rows());
+	_kalmanGain.resize(_state.size(), _measurementNoise.rows());
 	_root.resize(_state.size(), _state.size());
 }
 
@@ -124,7 +125,7 @@ void UnscentedKalmanFilter::predict(VectorXd control) {
 void UnscentedKalmanFilter::update(VectorXd measurement) {
 #ifdef UKF_DIMENSION_CHECKING
 	if (measurement.size() != _measurementState.size()) {
-		throw std::runtime_error("dimension mismatch: measurement measurementnoise");
+		throw std::runtime_error("dimension mismatch: measurement measurementstate");
 	}
 #endif
 #ifdef LOW_MEMORY
@@ -140,8 +141,15 @@ void UnscentedKalmanFilter::update(VectorXd measurement) {
 	}
 
 	_measurementCovariance = _weights[COVARIANCE_WEIGHT_0] * (_sigmaPointsH.col(0) - _measurementState) * (_sigmaPointsH.col(0) - _measurementState).transpose();
+	_crossCovariance = _weights[COVARIANCE_WEIGHT_0] * ((*container).col(0) - _state) * (_sigmaPointsH.col(0) - _measurementState).transpose();
 	for(int i = 1; i < _sigmaPoints.cols(); i++) {
 		_measurementCovariance += _weights[BOTH_WEIGHT_I] * (_sigmaPointsH.col(i) - _measurementState) * (_sigmaPointsH.col(i) - _measurementState).transpose();
+		_crossCovariance = _weights[BOTH_WEIGHT_I] * ((*container).col(i) - _state) * (_sigmaPointsH.col(i) - _measurementState).transpose();
 	}
 	_measurementCovariance += _measurementNoise;
+
+	_kalmanGain = _crossCovariance * _measurementCovariance.inverse();
+
+	_state += _kalmanGain * (measurement - _measurementState);
+	_covariance -= _kalmanGain * _measurementCovariance * _kalmanGain.transpose();
 }

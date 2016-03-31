@@ -27,6 +27,7 @@ SOFTWARE.
 
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Cholesky>
+#include <eigen3/Eigen/LU>
 #include <vector>
 #include <exception>
 
@@ -115,6 +116,8 @@ class UnscentedKalmanFilter {
 		VectorXd _measurementState;
 		MatrixXd _measurementCovariance;
 		MatrixXd _crossCovariance;
+
+		MatrixXd _kalmanGain;
 
 		LLT<MatrixXd> _rootFinder;
 		MatrixXd _root;

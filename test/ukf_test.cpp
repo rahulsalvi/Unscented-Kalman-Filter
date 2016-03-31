@@ -74,6 +74,8 @@ TEST_F(UnscentedKalmanFilterTester, InitializesCorrectly) {
 	EXPECT_EQ(_filter._measurementCovariance.cols(), STATE_DIM);
 	EXPECT_EQ(_filter._crossCovariance.rows(), STATE_DIM);
 	EXPECT_EQ(_filter._crossCovariance.cols(), STATE_DIM);
+	EXPECT_EQ(_filter._kalmanGain.rows(), STATE_DIM);
+	EXPECT_EQ(_filter._kalmanGain.cols(), STATE_DIM);
 	EXPECT_EQ(_filter._root.rows(), STATE_DIM);
 	EXPECT_EQ(_filter._root.cols(), STATE_DIM);
 
