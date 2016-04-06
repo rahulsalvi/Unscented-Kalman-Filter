@@ -26,7 +26,6 @@ SOFTWARE.
 #include <eigen3/Eigen/Core>
 
 #include "../include/ukf.h"
-#include "../include/ukfLogger.h"
 
 using namespace Eigen;
 
@@ -151,4 +150,9 @@ TEST_F(UnscentedKalmanFilterTester, PredictsCorrectly) {
 
 	EXPECT_TRUE(_filter.state().isApprox(vec, 0.01));
 	EXPECT_TRUE(_filter.covariance().isApprox(cov, 0.01));
+}
+
+TEST_F(UnscentedKalmanFilterTester, UpdatedCorrectly) {
+    _filter.createSigmaPoints();
+    _filter.update();
 }
