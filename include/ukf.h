@@ -126,6 +126,7 @@ class UnscentedKalmanFilter {
         FRIEND_TEST(UnscentedKalmanFilterTester, InitializesCorrectly);
         FRIEND_TEST(UnscentedKalmanFilterTester, CreatesSigmaPointsCorrectly);
         FRIEND_TEST(UnscentedKalmanFilterTester, PredictsCorrectly);
+        FRIEND_TEST(UnscentedKalmanFilterTester, UpdatesCorrectly);
 #endif
 };
 
