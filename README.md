@@ -17,3 +17,4 @@ Implements an Unscented Kalman Filter (UKF) in C++
 
 ## TODO
  - Allow different timesteps
+ - Finish logger
