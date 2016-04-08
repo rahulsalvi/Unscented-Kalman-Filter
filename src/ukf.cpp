@@ -65,17 +65,18 @@ void UnscentedKalmanFilter::fixMatrixSizes() {
     if (_measurementNoise.rows() != _measurementNoise.cols()) {
         throw std::runtime_error("dimension mismatch: measurementnoise");
     }
+//   matrix                        rows                     columns
 #endif
-    _sigmaPoints.resize(_state.size(), 2*_state.size()+1);
+    _sigmaPoints          .resize(_state.size(),            2*_state.size()+1);
 #ifndef LOW_MEMORY
-    _sigmaPointsF.resize(_state.size(), 2*_state.size()+1);
+    _sigmaPointsF         .resize(_state.size(),            2*_state.size()+1);
 #endif
-    _sigmaPointsH.resize(_measurementNoise.rows(), 2*_state.size()+1);
-    _measurementState.resize(_measurementNoise.rows());
+    _sigmaPointsH         .resize(_measurementNoise.rows(), 2*_state.size()+1);
+    _measurementState     .resize(_measurementNoise.rows());
     _measurementCovariance.resize(_measurementNoise.rows(), _measurementNoise.rows());
-    _crossCovariance.resize(_state.size(), _measurementNoise.rows());
-    _kalmanGain.resize(_state.size(), _measurementNoise.rows());
-    _root.resize(_state.size(), _state.size());
+    _crossCovariance      .resize(_state.size(),            _measurementNoise.rows());
+    _kalmanGain           .resize(_state.size(),            _measurementNoise.rows());
+    _root                 .resize(_state.size(),            _state.size());
 }
 
 void UnscentedKalmanFilter::calculateConstants() {
@@ -97,7 +98,7 @@ void UnscentedKalmanFilter::createSigmaPoints() {
 
     _sigmaPoints.col(0) = _state;
     for (int i = 1; i < _state.size()+1; i++) {
-        _sigmaPoints.col(i) = _state + _root.col(i-1);
+        _sigmaPoints.col(i)               = _state + _root.col(i-1);
         _sigmaPoints.col(_state.size()+i) = _state - _root.col(i-1);
     }
 }
@@ -134,22 +135,22 @@ void UnscentedKalmanFilter::update(VectorXd measurement) {
     MatrixXd* container = &_sigmaPointsF;
 #endif
     _sigmaPointsH.col(0) = _measurementTransfer((*container).col(0));
-    _measurementState = _weights[MEAN_WEIGHT_0] * _sigmaPointsH.col(0);
+    _measurementState    = _weights[MEAN_WEIGHT_0] * _sigmaPointsH.col(0);
     for(int i = 1; i < _sigmaPoints.cols(); i++) {
-        _sigmaPointsH.col(i) = _measurementTransfer((*container).col(i));
-        _measurementState += _weights[BOTH_WEIGHT_I] * _sigmaPointsH.col(i);
+        _sigmaPointsH.col(i)  = _measurementTransfer((*container).col(i));
+        _measurementState    += _weights[BOTH_WEIGHT_I] * _sigmaPointsH.col(i);
     }
 
     _measurementCovariance = _weights[COVARIANCE_WEIGHT_0] * (_sigmaPointsH.col(0) - _measurementState) * (_sigmaPointsH.col(0) - _measurementState).transpose();
-    _crossCovariance = _weights[COVARIANCE_WEIGHT_0] * ((*container).col(0) - _state) * (_sigmaPointsH.col(0) - _measurementState).transpose();
+    _crossCovariance       = _weights[COVARIANCE_WEIGHT_0] * ((*container).col(0)  - _state)            * (_sigmaPointsH.col(0) - _measurementState).transpose();
     for(int i = 1; i < _sigmaPoints.cols(); i++) {
         _measurementCovariance += _weights[BOTH_WEIGHT_I] * (_sigmaPointsH.col(i) - _measurementState) * (_sigmaPointsH.col(i) - _measurementState).transpose();
-        _crossCovariance += _weights[BOTH_WEIGHT_I] * ((*container).col(i) - _state) * (_sigmaPointsH.col(i) - _measurementState).transpose();
+        _crossCovariance       += _weights[BOTH_WEIGHT_I] * ((*container).col(i)  - _state)            * (_sigmaPointsH.col(i) - _measurementState).transpose();
     }
     _measurementCovariance += _measurementNoise;
 
     _kalmanGain = _crossCovariance * _measurementCovariance.inverse();
 
-    _state += _kalmanGain * (measurement - _measurementState);
+    _state      += _kalmanGain * (measurement - _measurementState);
     _covariance -= _kalmanGain * _measurementCovariance * _kalmanGain.transpose();
 }

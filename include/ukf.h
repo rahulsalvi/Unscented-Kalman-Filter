@@ -25,11 +25,12 @@ SOFTWARE.
 #ifndef UKF_H
 #define UKF_H
 
-#include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Cholesky>
 #include <eigen3/Eigen/LU>
-#include <vector>
+
+#ifdef UKF_DIMENSION_CHECKING
 #include <exception>
+#endif
 
 #ifdef TESTING
 #include <gtest/gtest_prod.h>
@@ -81,30 +82,30 @@ class UnscentedKalmanFilter {
         VectorXd _state;
         MatrixXd _covariance;
 
-        VectorXd (*_stateTransfer)(VectorXd, VectorXd, double);
-        VectorXd (*_measurementTransfer)(VectorXd);
+        VectorXd (*_stateTransfer)       (VectorXd, VectorXd, double);
+        VectorXd (*_measurementTransfer) (VectorXd);
 
         MatrixXd _processNoise;
         MatrixXd _measurementNoise;
 
-        double   _dt;
+        double _dt;
 
-        double   _kappa;
-        double   _alpha;
-        double   _beta;
+        double _kappa;
+        double _alpha;
+        double _beta;
 
         //Private member functions
-        void     fixMatrixSizes();
-        void     calculateConstants();
+        void fixMatrixSizes();
+        void calculateConstants();
 
-        void     createSigmaPoints();
-        void     predict(VectorXd control);
-        void     update(VectorXd measurement);
+        void createSigmaPoints();
+        void predict(VectorXd control);
+        void update(VectorXd measurement);
 
         //Intermediary variables
         friend class UnscentedKalmanFilterLogger; //in case we need access to these externally
 
-        double   _lambda;
+        double _lambda;
         double _weights[3];	//mean 0, covariance 0, both
 
         MatrixXd _sigmaPoints;
@@ -120,7 +121,7 @@ class UnscentedKalmanFilter {
         MatrixXd _kalmanGain;
 
         LLT<MatrixXd> _rootFinder;
-        MatrixXd _root;
+        MatrixXd      _root;
 
 #ifdef TESTING
         FRIEND_TEST(UnscentedKalmanFilterTester, InitializesCorrectly);

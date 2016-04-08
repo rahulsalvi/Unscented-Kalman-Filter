@@ -22,9 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include <iostream>
 #include <gtest/gtest.h>
-#include <eigen3/Eigen/Core>
 
 #include "../include/ukf.h"
 
@@ -55,7 +53,6 @@ class UnscentedKalmanFilterTester : public ::testing::Test {
             _filter.setBeta(2);
             _filter.initialize();
         }
-
         UnscentedKalmanFilter _filter;
 };
 
@@ -149,7 +146,7 @@ TEST_F(UnscentedKalmanFilterTester, PredictsCorrectly) {
     Matrix<double, STATE_DIM, STATE_DIM> cov;
     cov << 1, 0, 0, 1;
 
-    EXPECT_TRUE(_filter.state().isApprox(vec, 0.01));
+    EXPECT_TRUE(_filter.state()     .isApprox(vec, 0.01));
     EXPECT_TRUE(_filter.covariance().isApprox(cov, 0.01));
 }
 
@@ -163,13 +160,13 @@ TEST_F(UnscentedKalmanFilterTester, UpdatesCorrectly) {
     Matrix<double, STATE_DIM, STATE_DIM> cov;
     cov << 0, 0, 0, 0;
 
-    EXPECT_TRUE(_filter.state().isApprox(vec, 0.01));
+    EXPECT_TRUE(_filter.state()     .isApprox(vec, 0.01));
     EXPECT_TRUE(_filter.covariance().isApprox(cov, 0.01));
 
     _filter.update(MatrixXd::Zero(STATE_DIM, 1));
     vec << 0, 0;
     cov << -1, 0, 0, -1;
 
-    EXPECT_TRUE(_filter.state().isApprox(vec, 0.01));
+    EXPECT_TRUE(_filter.state()     .isApprox(vec, 0.01));
     EXPECT_TRUE(_filter.covariance().isApprox(cov, 0.01));
 }
