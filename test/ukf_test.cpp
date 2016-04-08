@@ -155,5 +155,21 @@ TEST_F(UnscentedKalmanFilterTester, PredictsCorrectly) {
 
 TEST_F(UnscentedKalmanFilterTester, UpdatesCorrectly) {
     _filter.createSigmaPoints();
-    /* _filter.update(); */
+    _filter.predict(MatrixXd::Zero(STATE_DIM, 1));
+    _filter.update(MatrixXd::Ones(STATE_DIM, 1));
+
+    Matrix<double, STATE_DIM, 1> vec;
+    vec << 1, 1;
+    Matrix<double, STATE_DIM, STATE_DIM> cov;
+    cov << 0, 0, 0, 0;
+
+    EXPECT_TRUE(_filter.state().isApprox(vec, 0.01));
+    EXPECT_TRUE(_filter.covariance().isApprox(cov, 0.01));
+
+    _filter.update(MatrixXd::Zero(STATE_DIM, 1));
+    vec << 0, 0;
+    cov << -1, 0, 0, -1;
+
+    EXPECT_TRUE(_filter.state().isApprox(vec, 0.01));
+    EXPECT_TRUE(_filter.covariance().isApprox(cov, 0.01));
 }

@@ -144,7 +144,7 @@ void UnscentedKalmanFilter::update(VectorXd measurement) {
     _crossCovariance = _weights[COVARIANCE_WEIGHT_0] * ((*container).col(0) - _state) * (_sigmaPointsH.col(0) - _measurementState).transpose();
     for(int i = 1; i < _sigmaPoints.cols(); i++) {
         _measurementCovariance += _weights[BOTH_WEIGHT_I] * (_sigmaPointsH.col(i) - _measurementState) * (_sigmaPointsH.col(i) - _measurementState).transpose();
-        _crossCovariance = _weights[BOTH_WEIGHT_I] * ((*container).col(i) - _state) * (_sigmaPointsH.col(i) - _measurementState).transpose();
+        _crossCovariance += _weights[BOTH_WEIGHT_I] * ((*container).col(i) - _state) * (_sigmaPointsH.col(i) - _measurementState).transpose();
     }
     _measurementCovariance += _measurementNoise;
 
