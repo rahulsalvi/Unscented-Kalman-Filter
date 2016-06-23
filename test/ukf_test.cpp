@@ -24,36 +24,43 @@ SOFTWARE.
 
 #include <gtest/gtest.h>
 
-#include "../include/ukf.h"
+#include "../src/ukf.h"
 
-using namespace Eigen;
+using Eigen::Matrix;
+using Eigen::MatrixXd;
+using Eigen::VectorXd;
 
 #define STATE_DIM 2
+#define CONTROL_DIM 0
 
-VectorXd stateTransfer(VectorXd state, VectorXd control, double dt) {
+typedef Matrix<double, STATE_DIM, 1> vector;
+typedef Matrix<double, CONTROL_DIM, 1> cvector;
+typedef Matrix<double, STATE_DIM, STATE_DIM> matrix;
+
+vector stateTransfer(vector state, cvector control, double dt) {
     return state;
 }
 
-VectorXd measurementTransfer(VectorXd measurement) {
+vector measurementTransfer(vector measurement) {
     return measurement;
 }
 
 class UnscentedKalmanFilterTester : public ::testing::Test {
     public:
         virtual void SetUp() {
-            _filter.setState(VectorXd::Ones(STATE_DIM,1));
-            _filter.setCovariance(MatrixXd::Identity(STATE_DIM, STATE_DIM));
-            _filter.setStateTransfer(stateTransfer);
-            _filter.setMeasurementTransfer(measurementTransfer);
-            _filter.setProcessNoise(MatrixXd::Zero(STATE_DIM, STATE_DIM));
-            _filter.setMeasurementNoise(MatrixXd::Zero(STATE_DIM, STATE_DIM));
-            _filter.setDt(0.01);
-            _filter.setKappa(-1);
-            _filter.setAlpha(1);
-            _filter.setBeta(2);
+            _filter.setState               (VectorXd::Ones(STATE_DIM,1));
+            _filter.setCovariance          (MatrixXd::Identity(STATE_DIM, STATE_DIM));
+            _filter.setStateTransfer       (stateTransfer);
+            _filter.setMeasurementTransfer (measurementTransfer);
+            _filter.setProcessNoise        (MatrixXd::Zero(STATE_DIM, STATE_DIM));
+            _filter.setMeasurementNoise    (MatrixXd::Zero(STATE_DIM, STATE_DIM));
+            _filter.setDt                  (0.01);
+            _filter.setKappa               (-1);
+            _filter.setAlpha               (1);
+            _filter.setBeta                (2);
             _filter.initialize();
         }
-        UnscentedKalmanFilter _filter;
+        UnscentedKalmanFilter<STATE_DIM, STATE_DIM, CONTROL_DIM> _filter;
 };
 
 TEST_F(UnscentedKalmanFilterTester, InitializesCorrectly) {
@@ -95,7 +102,7 @@ TEST_F(UnscentedKalmanFilterTester, InitializesCorrectly) {
 TEST_F(UnscentedKalmanFilterTester, CreatesSigmaPointsCorrectly) {
     _filter.createSigmaPoints();
 
-    Matrix<double, STATE_DIM, 1> vec;
+    vector vec;
 
     vec << 1, 1;
     EXPECT_TRUE(_filter._sigmaPoints.col(0).isApprox(vec, 0.01));
@@ -115,7 +122,7 @@ TEST_F(UnscentedKalmanFilterTester, CreatesSigmaPointsCorrectly) {
     vec << 2.5, -2.5;
     _filter.setState(vec);
 
-    Matrix<double, STATE_DIM, STATE_DIM> cov;
+    matrix cov;
     cov << 0.25, 2, 2, 80;
     _filter.setCovariance(cov);
 
@@ -139,11 +146,11 @@ TEST_F(UnscentedKalmanFilterTester, CreatesSigmaPointsCorrectly) {
 
 TEST_F(UnscentedKalmanFilterTester, PredictsCorrectly) {
     _filter.createSigmaPoints();
-    _filter.predict(MatrixXd::Zero(STATE_DIM, 1));
+    _filter.predict(MatrixXd::Zero(CONTROL_DIM, 1));
 
-    Matrix<double, STATE_DIM, 1> vec;
+    vector vec;
     vec << 1, 1;
-    Matrix<double, STATE_DIM, STATE_DIM> cov;
+    matrix cov;
     cov << 1, 0, 0, 1;
 
     EXPECT_TRUE(_filter.state()     .isApprox(vec, 0.01));
@@ -152,12 +159,12 @@ TEST_F(UnscentedKalmanFilterTester, PredictsCorrectly) {
 
 TEST_F(UnscentedKalmanFilterTester, UpdatesCorrectly) {
     _filter.createSigmaPoints();
-    _filter.predict(MatrixXd::Zero(STATE_DIM, 1));
+    _filter.predict(MatrixXd::Zero(CONTROL_DIM, 1));
     _filter.update(MatrixXd::Ones(STATE_DIM, 1));
 
-    Matrix<double, STATE_DIM, 1> vec;
+    vector vec;
     vec << 1, 1;
-    Matrix<double, STATE_DIM, STATE_DIM> cov;
+    matrix cov;
     cov << 0, 0, 0, 0;
 
     EXPECT_TRUE(_filter.state()     .isApprox(vec, 0.01));
