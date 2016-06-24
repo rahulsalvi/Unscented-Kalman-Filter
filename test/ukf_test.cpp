@@ -24,7 +24,7 @@ SOFTWARE.
 
 #include <gtest/gtest.h>
 
-#include "../src/ukf.h"
+#include "../src/UnscentedKalmanFilter.h"
 
 using Eigen::Matrix;
 using Eigen::MatrixXd;

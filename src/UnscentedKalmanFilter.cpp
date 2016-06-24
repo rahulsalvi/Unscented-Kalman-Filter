@@ -23,7 +23,7 @@ SOFTWARE.
 */
 
 #ifndef UKF_FUNCTIONS
-#include "ukf.h"
+#include "UnscentedKalmanFilter.h"
 #else
 
 template<int STATE_DIM, int MEASUREMENT_DIM, int CONTROL_DIM>

@@ -22,8 +22,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef UKF_H
-#define UKF_H
+#ifndef UNSCENTEDKALMANFILTER_H
+#define UNSCENTEDKALMANFILTER_H
 
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Cholesky>
@@ -131,6 +131,6 @@ class UnscentedKalmanFilter {
 };
 
 #define UKF_FUNCTIONS
-#include "ukf.cpp"
+#include "UnscentedKalmanFilter.cpp"
 
-#endif //UKF_H
+#endif //UNSCENTEDKALMANFILTER_H
