@@ -1,4 +1,4 @@
-# Unscented-Kalman-Filter
+# Unscented Kalman Filter
 Implements an Unscented Kalman Filter (UKF) in C++
 
 ## Requirements
