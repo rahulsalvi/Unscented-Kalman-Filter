@@ -64,8 +64,8 @@ template<int STATE_DIM, int MEASUREMENT_DIM, int CONTROL_DIM>
 Matrix<double, STATE_DIM, 1>
 UnscentedKalmanFilter<STATE_DIM, MEASUREMENT_DIM, CONTROL_DIM>::step(controlVector control, measurementVector measurement) {
     createSigmaPoints();
-    update(control);
-    predict(measurement);
+    predict(control);
+    update(measurement);
     return _state;
 }
 
